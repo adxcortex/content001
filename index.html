@@ -1,0 +1,1688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adithya's Content OS — Instagram Command Notebook</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Caveat+Brush&family=Kalam:wght@300;400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #e8e0d0;
+    --ink-dim: #a89880;
+    --ink-bright: #f5efe4;
+    --page-dark: #1a1612;
+    --page-mid: #211e19;
+    --page-light: #2a2520;
+    --ruled: rgba(160,140,110,0.12);
+    --red: #e84545;
+    --amber: #f0a500;
+    --green: #5bba6f;
+    --teal: #3ecfcf;
+    --purple: #b06aff;
+    --margin: #e84545;
+    --spiral: #3a3530;
+    --ring: #555048;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #111008;
+    font-family: 'Kalam', cursive;
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* SPIRAL NOTEBOOK BACKGROUND */
+  .notebook-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    background: var(--page-dark);
+    min-height: 100vh;
+    position: relative;
+    box-shadow: 0 0 80px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.04);
+  }
+
+  /* Ruled lines */
+  .notebook-wrap::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 960px;
+    height: 100%;
+    background: repeating-linear-gradient(
+      transparent,
+      transparent 31px,
+      var(--ruled) 31px,
+      var(--ruled) 32px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Red margin line */
+  .notebook-wrap::after {
+    content: '';
+    position: fixed;
+    top: 0; left: calc(50% - 480px + 72px);
+    width: 2px;
+    height: 100%;
+    background: rgba(232,69,69,0.25);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* SPIRAL RINGS */
+  .spirals {
+    position: fixed;
+    top: 0; left: calc(50% - 480px);
+    width: 72px;
+    height: 100%;
+    background: var(--spiral);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    overflow: hidden;
+  }
+  .spiral-ring {
+    width: 36px;
+    height: 36px;
+    border: 5px solid var(--ring);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin: 18px 0;
+    background: var(--page-dark);
+    box-shadow: 0 0 0 2px #1a1612, inset 0 2px 4px rgba(0,0,0,0.6);
+    position: relative;
+  }
+  .spiral-ring::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--spiral);
+  }
+
+  /* MAIN CONTENT AREA */
+  .content {
+    margin-left: 72px;
+    padding: 0 32px 60px 24px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* HEADER */
+  .header {
+    padding: 40px 0 20px;
+    border-bottom: 2px dashed rgba(160,140,110,0.2);
+    margin-bottom: 8px;
+  }
+  .header-title {
+    font-family: 'Caveat Brush', cursive;
+    font-size: 2.6rem;
+    color: var(--ink-bright);
+    line-height: 1.1;
+    letter-spacing: 1px;
+  }
+  .header-sub {
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    color: var(--amber);
+    margin-top: 6px;
+  }
+  .header-meta {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.85rem;
+    color: var(--ink-dim);
+    margin-top: 4px;
+  }
+
+  /* TAB NAVIGATION */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin: 24px 0 0;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--page-dark);
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(160,140,110,0.15);
+  }
+  .tab-btn {
+    font-family: 'Caveat', cursive;
+    font-size: 1rem;
+    padding: 8px 16px;
+    background: var(--page-light);
+    color: var(--ink-dim);
+    border: 1px solid rgba(160,140,110,0.15);
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    top: 1px;
+    white-space: nowrap;
+  }
+  .tab-btn.active {
+    background: var(--page-mid);
+    color: var(--amber);
+    border-color: rgba(240,165,0,0.3);
+    border-bottom-color: var(--page-mid);
+  }
+  .tab-btn:hover:not(.active) { color: var(--ink); background: var(--page-mid); }
+
+  /* SECTIONS */
+  .section { display: none; padding-top: 20px; }
+  .section.active { display: block; }
+
+  /* SECTION HEADER */
+  .section-title {
+    font-family: 'Caveat Brush', cursive;
+    font-size: 1.9rem;
+    color: var(--ink-bright);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .underline-scribble {
+    height: 3px;
+    border-radius: 2px;
+    margin: 2px 0 20px;
+    opacity: 0.6;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--page-mid);
+    border: 1px solid rgba(160,140,110,0.12);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    border-radius: 4px 0 0 4px;
+  }
+  .card-red::before { background: var(--red); }
+  .card-amber::before { background: var(--amber); }
+  .card-green::before { background: var(--green); }
+  .card-teal::before { background: var(--teal); }
+  .card-purple::before { background: var(--purple); }
+
+  .card-title {
+    font-family: 'Caveat', cursive;
+    font-size: 1.3rem;
+    color: var(--amber);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .card-body {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+
+  /* COMPETITOR GRID */
+  .competitor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  @media(max-width:600px){.competitor-grid{grid-template-columns:1fr;}}
+
+  .competitor-card {
+    background: var(--page-light);
+    border: 1px dashed rgba(160,140,110,0.2);
+    border-radius: 4px;
+    padding: 16px;
+  }
+  .competitor-name {
+    font-family: 'Caveat Brush', cursive;
+    font-size: 1.2rem;
+    color: var(--teal);
+    margin-bottom: 6px;
+  }
+  .competitor-handle {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.8rem;
+    color: var(--ink-dim);
+    margin-bottom: 10px;
+  }
+  .tag {
+    display: inline-block;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin: 2px 2px 2px 0;
+    border: 1px solid;
+  }
+  .tag-red { color: var(--red); border-color: var(--red); }
+  .tag-amber { color: var(--amber); border-color: var(--amber); }
+  .tag-teal { color: var(--teal); border-color: var(--teal); }
+  .tag-green { color: var(--green); border-color: var(--green); }
+  .tag-purple { color: var(--purple); border-color: var(--purple); }
+
+  .stat-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.8rem;
+    color: var(--ink-dim);
+  }
+  .stat strong {
+    font-family: 'Caveat', cursive;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+
+  /* DAY PLAN CARDS */
+  .day-card {
+    background: var(--page-mid);
+    border: 1px solid rgba(160,140,110,0.12);
+    border-radius: 4px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .day-header {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .day-num {
+    font-family: 'Caveat Brush', cursive;
+    font-size: 2rem;
+    color: var(--amber);
+    line-height: 1;
+    min-width: 36px;
+  }
+  .day-info { flex: 1; }
+  .day-topic {
+    font-family: 'Caveat', cursive;
+    font-size: 1.2rem;
+    color: var(--ink-bright);
+    font-weight: 700;
+  }
+  .day-meta {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.8rem;
+    color: var(--ink-dim);
+    margin-top: 2px;
+  }
+  .day-arrow {
+    font-size: 1.2rem;
+    color: var(--ink-dim);
+    transition: transform 0.2s;
+  }
+  .day-card.open .day-arrow { transform: rotate(90deg); }
+  .day-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px dashed rgba(160,140,110,0.15);
+  }
+  .day-card.open .day-body { display: block; }
+
+  .post-field {
+    margin: 14px 0;
+  }
+  .post-label {
+    font-family: 'Caveat', cursive;
+    font-size: 0.95rem;
+    color: var(--amber);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .post-label .emoji { font-size: 1rem; }
+  .post-text {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+  .hashtag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .hashtag {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.8rem;
+    color: var(--teal);
+    background: rgba(62,207,207,0.08);
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(62,207,207,0.2);
+  }
+
+  /* COPY BUTTON */
+  .copy-btn {
+    font-family: 'Caveat', cursive;
+    font-size: 0.9rem;
+    padding: 6px 14px;
+    background: transparent;
+    border: 1px dashed var(--amber);
+    color: var(--amber);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+  }
+  .copy-btn:hover { background: rgba(240,165,0,0.1); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+  /* AI GENERATOR */
+  .generator-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  @media(max-width:600px){.generator-grid{grid-template-columns:1fr;}}
+
+  .gen-btn {
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    padding: 16px 20px;
+    border: 2px dashed;
+    border-radius: 6px;
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.2s;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .gen-btn-red { color: var(--red); border-color: var(--red); }
+  .gen-btn-red:hover { background: rgba(232,69,69,0.08); }
+  .gen-btn-amber { color: var(--amber); border-color: var(--amber); }
+  .gen-btn-amber:hover { background: rgba(240,165,0,0.08); }
+  .gen-btn-teal { color: var(--teal); border-color: var(--teal); }
+  .gen-btn-teal:hover { background: rgba(62,207,207,0.08); }
+  .gen-btn-green { color: var(--green); border-color: var(--green); }
+  .gen-btn-green:hover { background: rgba(91,186,111,0.08); }
+  .gen-btn-purple { color: var(--purple); border-color: var(--purple); }
+  .gen-btn-purple:hover { background: rgba(176,106,255,0.08); }
+
+  .gen-output {
+    background: var(--page-light);
+    border: 1px solid rgba(160,140,110,0.15);
+    border-radius: 4px;
+    padding: 20px;
+    min-height: 120px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--ink);
+    margin-top: 14px;
+    white-space: pre-wrap;
+    position: relative;
+  }
+  .gen-output.loading::after {
+    content: '✍️ Writing...';
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    color: var(--amber);
+    animation: blink 1s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .topic-input {
+    width: 100%;
+    background: var(--page-light);
+    border: 1px solid rgba(160,140,110,0.2);
+    border-radius: 4px;
+    padding: 12px 16px;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.95rem;
+    color: var(--ink);
+    margin-bottom: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .topic-input:focus { border-color: var(--amber); }
+  .topic-input::placeholder { color: var(--ink-dim); }
+
+  select.topic-input {
+    appearance: none;
+    cursor: pointer;
+  }
+
+  /* IMAGE PROMPT SECTION */
+  .image-prompt-card {
+    background: var(--page-light);
+    border: 1px dashed rgba(176,106,255,0.3);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .image-prompt-title {
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    color: var(--purple);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .image-prompt-text {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.88rem;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+
+  /* ANALYSIS TABLE */
+  .analysis-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+  }
+  .analysis-table th {
+    font-family: 'Caveat', cursive;
+    font-size: 0.95rem;
+    color: var(--amber);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 2px solid rgba(240,165,0,0.3);
+  }
+  .analysis-table td {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.85rem;
+    color: var(--ink);
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(160,140,110,0.1);
+    vertical-align: top;
+  }
+  .analysis-table tr:last-child td { border-bottom: none; }
+  .analysis-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* GROWTH TRACKER */
+  .tracker-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(160,140,110,0.1);
+  }
+  .tracker-check {
+    width: 20px; height: 20px;
+    border: 2px dashed var(--ink-dim);
+    border-radius: 3px;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+  }
+  .tracker-check.done { border-color: var(--green); color: var(--green); border-style: solid; }
+  .tracker-label {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+
+  /* STICKY NOTE */
+  .sticky {
+    background: rgba(240,165,0,0.08);
+    border: 1px solid rgba(240,165,0,0.25);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    position: relative;
+  }
+  .sticky::before {
+    content: '📌';
+    position: absolute;
+    top: -10px; left: 12px;
+    font-size: 1.1rem;
+  }
+  .sticky-text {
+    font-family: 'Caveat', cursive;
+    font-size: 1rem;
+    color: var(--amber);
+    line-height: 1.6;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--page-dark); }
+  ::-webkit-scrollbar-thumb { background: var(--ring); border-radius: 3px; }
+
+  /* LOADING SPINNER */
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(240,165,0,0.2);
+    border-top-color: var(--amber);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-text {
+    font-family: 'Caveat', cursive;
+    color: var(--red);
+    font-size: 1rem;
+  }
+
+  /* DIVIDER */
+  hr.divider {
+    border: none;
+    border-top: 1px dashed rgba(160,140,110,0.2);
+    margin: 20px 0;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.7rem;
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: rgba(91,186,111,0.15);
+    color: var(--green);
+    border: 1px solid rgba(91,186,111,0.3);
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media(max-width:600px){.two-col{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="notebook-wrap">
+  <!-- SPIRALS -->
+  <div class="spirals" id="spirals"></div>
+
+  <div class="content">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-title">✦ Adithya's Content OS</div>
+      <div class="header-sub">Instagram Growth Command Notebook — @adithya.a.a.h</div>
+      <div class="header-meta">Niche: Politics Decoded · Business · AI Strategies · Automation · Trade & Market · System Thinking</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('competitors')">🔍 Competitor Intel</button>
+      <button class="tab-btn" onclick="showTab('strategy')">📊 Strategy Report</button>
+      <button class="tab-btn" onclick="showTab('plan')">🗓 7-Day Plan</button>
+      <button class="tab-btn" onclick="showTab('posts')">✍️ 9 Full Posts</button>
+      <button class="tab-btn" onclick="showTab('generator')">⚡ AI Generator</button>
+      <button class="tab-btn" onclick="showTab('images')">🖼 Image Prompts</button>
+      <button class="tab-btn" onclick="showTab('tracker')">☑️ Daily Tracker</button>
+    </div>
+
+    <!-- ======================== TAB 1: COMPETITORS ======================== -->
+    <div class="section active" id="tab-competitors">
+      <div class="section-title"><span class="dot" style="background:var(--teal)"></span>Top 5 Competitor Analysis</div>
+      <div class="underline-scribble" style="background:var(--teal); width:200px;"></div>
+
+      <div class="sticky">
+        <div class="sticky-text">Note: Instagram doesn't allow third-party scraping. This analysis is built from publicly documented creator strategies, viral pattern research, and niche benchmarking as of May 2026. Use these as your battle blueprint.</div>
+      </div>
+
+      <div class="competitor-grid">
+        <div class="competitor-card card-teal">
+          <div class="competitor-name">Creator Archetype #1</div>
+          <div class="competitor-handle">🏷 The Geopolitical Decoder</div>
+          <div>
+            <span class="tag tag-red">Politics</span>
+            <span class="tag tag-amber">Trade War</span>
+            <span class="tag tag-teal">Carousels</span>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><strong>100K–500K</strong><br>followers</div>
+            <div class="stat"><strong>3–8%</strong><br>eng. rate</div>
+            <div class="stat"><strong>Saves</strong><br>main metric</div>
+          </div>
+          <hr class="divider">
+          <div class="card-body" style="font-size:0.82rem;">
+            <strong style="color:var(--teal)">Hook Pattern:</strong> "What REALLY happened with [event] — Thread 🧵"<br>
+            <strong style="color:var(--teal)">Format:</strong> 10-slide carousels, map infographics, bold typography<br>
+            <strong style="color:var(--teal)">CTA:</strong> "Save this before it gets suppressed" / "Tag someone who needs to know"<br>
+            <strong style="color:var(--teal)">Weak spot:</strong> No AI/automation angle — YOUR edge!
+          </div>
+        </div>
+
+        <div class="competitor-card card-amber">
+          <div class="competitor-name">Creator Archetype #2</div>
+          <div class="competitor-handle">🏷 The Business Systems Guy</div>
+          <div>
+            <span class="tag tag-amber">Business</span>
+            <span class="tag tag-purple">AI Tools</span>
+            <span class="tag tag-green">Automation</span>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><strong>50K–200K</strong><br>followers</div>
+            <div class="stat"><strong>5–12%</strong><br>eng. rate</div>
+            <div class="stat"><strong>Shares</strong><br>main metric</div>
+          </div>
+          <hr class="divider">
+          <div class="card-body" style="font-size:0.82rem;">
+            <strong style="color:var(--amber)">Hook Pattern:</strong> "I automated my entire [X] in 48 hours. Here's the exact system:"<br>
+            <strong style="color:var(--amber)">Format:</strong> Step-by-step carousels, screen recordings, before/after<br>
+            <strong style="color:var(--amber)">CTA:</strong> "Comment 'SYSTEM' for the template"<br>
+            <strong style="color:var(--amber)">Weak spot:</strong> No geopolitics/trade context — your edge!
+          </div>
+        </div>
+
+        <div class="competitor-card card-red">
+          <div class="competitor-name">Creator Archetype #3</div>
+          <div class="competitor-handle">🏷 The Market Intelligence Analyst</div>
+          <div>
+            <span class="tag tag-red">Trade</span>
+            <span class="tag tag-amber">Markets</span>
+            <span class="tag tag-teal">Data Viz</span>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><strong>80K–300K</strong><br>followers</div>
+            <div class="stat"><strong>4–9%</strong><br>eng. rate</div>
+            <div class="stat"><strong>DM Shares</strong><br>main metric</div>
+          </div>
+          <hr class="divider">
+          <div class="card-body" style="font-size:0.82rem;">
+            <strong style="color:var(--red)">Hook Pattern:</strong> "The [country/sector] you're ignoring just became the most important story in markets"<br>
+            <strong style="color:var(--red)">Format:</strong> Charts + narrative carousels, data storytelling<br>
+            <strong style="color:var(--red)">CTA:</strong> "Follow for daily market decodes"<br>
+            <strong style="color:var(--red)">Weak spot:</strong> Dense, not beginner-friendly
+          </div>
+        </div>
+
+        <div class="competitor-card card-green">
+          <div class="competitor-name">Creator Archetype #4</div>
+          <div class="competitor-handle">🏷 The AI Strategist</div>
+          <div>
+            <span class="tag tag-green">AI</span>
+            <span class="tag tag-purple">Automation</span>
+            <span class="tag tag-teal">Strategy</span>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><strong>30K–150K</strong><br>followers</div>
+            <div class="stat"><strong>6–15%</strong><br>eng. rate</div>
+            <div class="stat"><strong>Saves</strong><br>main metric</div>
+          </div>
+          <hr class="divider">
+          <div class="card-body" style="font-size:0.82rem;">
+            <strong style="color:var(--green)">Hook Pattern:</strong> "Most people use AI wrong. Here's the 20% that gets 80% of results:"<br>
+            <strong style="color:var(--green)">Format:</strong> Short reels with text overlay, carousel follow-ups<br>
+            <strong style="color:var(--green)">CTA:</strong> "Save this — you'll need it in 6 months"<br>
+            <strong style="color:var(--green)">Weak spot:</strong> Too tool-focused, no bigger world view
+          </div>
+        </div>
+
+        <div class="competitor-card card-purple" style="grid-column: 1 / -1;">
+          <div class="competitor-name">Creator Archetype #5</div>
+          <div class="competitor-handle">🏷 The System Thinker / Big Picture Narrator</div>
+          <div>
+            <span class="tag tag-purple">Systems</span>
+            <span class="tag tag-red">Geopolitics</span>
+            <span class="tag tag-amber">Business</span>
+            <span class="tag tag-green">AI</span>
+          </div>
+          <div class="stat-row">
+            <div class="stat"><strong>200K–1M</strong><br>followers</div>
+            <div class="stat"><strong>2–6%</strong><br>eng. rate</div>
+            <div class="stat"><strong>Shares</strong><br>main metric</div>
+          </div>
+          <hr class="divider">
+          <div class="card-body" style="font-size:0.82rem;">
+            <strong style="color:var(--purple)">Hook Pattern:</strong> "Everything happening right now in [geo/business/AI] connects to ONE thing nobody is talking about."<br>
+            <strong style="color:var(--purple)">Format:</strong> Long-form carousels (12–15 slides), talking head reels, thread screenshots<br>
+            <strong style="color:var(--purple)">CTA:</strong> "Share this with someone who thinks they understand the world"<br>
+            <strong style="color:var(--purple)">Weak spot:</strong> Long posting intervals, inconsistent cadence — your edge is daily quality output
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-amber">
+        <div class="card-title">🏆 What ALL of Them Are Missing (Your Unique Positioning)</div>
+        <div class="card-body">
+          None of these creators connect <strong>all five pillars</strong> simultaneously: Politics + Business + AI Automation + Trade/Market Analysis + Systems Thinking. <strong>Adithya's angle</strong> is the INTEGRATED lens — showing how a geopolitical event triggers a business opportunity, which can be captured with AI automation, and understood only through systems thinking. That cross-pillar synthesis is your moat.
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================== TAB 2: STRATEGY ======================== -->
+    <div class="section" id="tab-strategy">
+      <div class="section-title"><span class="dot" style="background:var(--amber)"></span>Strategy Report</div>
+      <div class="underline-scribble" style="background:var(--amber); width:180px;"></div>
+
+      <div class="card card-amber">
+        <div class="card-title">📌 Algorithm Signals (2026 Verified)</div>
+        <table class="analysis-table">
+          <tr><th>Signal</th><th>Weight</th><th>Action</th></tr>
+          <tr><td>DM Shares</td><td style="color:var(--red)">🔴 3–5x higher</td><td>End every post with "Send this to..."</td></tr>
+          <tr><td>Saves</td><td style="color:var(--amber)">🟡 High</td><td>Give checklist / framework posts</td></tr>
+          <tr><td>Comments</td><td style="color:var(--amber)">🟡 Medium-High</td><td>Ask one specific polarizing question</td></tr>
+          <tr><td>Watch Time (Reels)</td><td style="color:var(--red)">🔴 Critical</td><td>Hook in first 2 seconds</td></tr>
+          <tr><td>Caption Keywords</td><td style="color:var(--green)">🟢 Replaced hashtags</td><td>Write keyword-rich captions naturally</td></tr>
+          <tr><td>Hashtags</td><td style="color:var(--ink-dim)">⚪ Minimal</td><td>3–5 max, niche-specific only</td></tr>
+          <tr><td>Carousel Slides</td><td style="color:var(--green)">🟢 8–10 optimal</td><td>Never less than 8 slides</td></tr>
+        </table>
+      </div>
+
+      <div class="two-col">
+        <div class="card card-teal">
+          <div class="card-title">🎯 Target Audience Profile</div>
+          <div class="card-body">
+            <strong>Primary:</strong> 22–35 yr old Indians<br>
+            <strong>Occupation:</strong> Students, entrepreneurs, startup employees, finance professionals<br>
+            <strong>Pain:</strong> "I see news but don't understand what it means for me"<br>
+            <strong>Desire:</strong> Sound smart, make better decisions, find opportunities<br>
+            <strong>Device:</strong> Mobile-first, consumes between 8–10 AM and 9–11 PM
+          </div>
+        </div>
+        <div class="card card-purple">
+          <div class="card-title">📐 Content Pillars (20/80 Rule)</div>
+          <div class="card-body">
+            <span class="tag tag-red">30%</span> Geopolitics Decoded<br><br>
+            <span class="tag tag-amber">25%</span> AI + Automation Playbooks<br><br>
+            <span class="tag tag-teal">20%</span> Market & Trade Intelligence<br><br>
+            <span class="tag tag-green">15%</span> Business Systems<br><br>
+            <span class="tag tag-purple">10%</span> Systems Thinking Frameworks
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-red">
+        <div class="card-title">🔥 Viral Hook Formula (Tested Patterns)</div>
+        <table class="analysis-table">
+          <tr><th>Type</th><th>Template</th><th>Best For</th></tr>
+          <tr><td>Shock + Contrast</td><td>"While you were sleeping, [event] just changed [outcome] forever."</td><td>News/Politics</td></tr>
+          <tr><td>Secret Reveal</td><td>"The [entity] doesn't want you to know this about [topic]."</td><td>Business/Trade</td></tr>
+          <tr><td>Counterintuitive</td><td>"Everyone thinks [X]. The data says the opposite."</td><td>Markets/AI</td></tr>
+          <tr><td>Prediction</td><td>"In 6 months, this [country/tool/sector] will be everywhere. Here's why:"</td><td>AI/Trade</td></tr>
+          <tr><td>Urgency Frame</td><td>"This window closes in [X]. Here's what to do NOW."</td><td>Business/AI</td></tr>
+          <tr><td>Identity Mirror</td><td>"If you're in [profession], what's happening in [place] directly affects your income."</td><td>All niches</td></tr>
+        </table>
+      </div>
+
+      <div class="card card-green">
+        <div class="card-title">⏰ Best Times to Post (IST)</div>
+        <div class="card-body">
+          <strong style="color:var(--green)">Reels:</strong> 7:30–9:00 AM (morning commute) · 7:00–9:00 PM (evening wind-down)<br>
+          <strong style="color:var(--teal)">Carousels:</strong> 9:00–10:30 AM · 8:00–10:00 PM<br>
+          <strong style="color:var(--amber)">Best Days:</strong> Tuesday, Wednesday, Thursday — highest save rates<br>
+          <strong style="color:var(--red)">Avoid:</strong> Friday evenings, Saturday afternoons (lowest political content consumption)
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================== TAB 3: 7-DAY PLAN ======================== -->
+    <div class="section" id="tab-plan">
+      <div class="section-title"><span class="dot" style="background:var(--green)"></span>7-Day Content Calendar</div>
+      <div class="underline-scribble" style="background:var(--green); width:220px;"></div>
+
+      <div class="sticky">
+        <div class="sticky-text">Rule: 1 post/day. Quality > Quantity. Every post optimised for SAVES + DM SHARES. Format = Carousel (8–10 slides) unless noted as Reel.</div>
+      </div>
+
+      <div id="day-plan-container"></div>
+    </div>
+
+    <!-- ======================== TAB 4: 9 FULL POSTS ======================== -->
+    <div class="section" id="tab-posts">
+      <div class="section-title"><span class="dot" style="background:var(--red)"></span>9 Complete Posts (7 + 2 Backup)</div>
+      <div class="underline-scribble" style="background:var(--red); width:250px;"></div>
+      <div id="full-posts-container"></div>
+    </div>
+
+    <!-- ======================== TAB 5: AI GENERATOR ======================== -->
+    <div class="section" id="tab-generator">
+      <div class="section-title"><span class="dot" style="background:var(--purple)"></span>AI Content Generator</div>
+      <div class="underline-scribble" style="background:var(--purple); width:200px;"></div>
+
+      <div class="card card-purple">
+        <div class="card-title">⚡ One-Click Content Engine</div>
+        <div class="card-body">Powered by Claude. Enter your topic and hit generate.</div>
+      </div>
+
+      <label style="font-family:'Caveat',cursive;color:var(--amber);font-size:1rem;">📝 Enter Topic / Keyword</label><br><br>
+      <input class="topic-input" id="topic-input" type="text" placeholder="e.g. India-China trade war, ChatGPT automation, BRICS currency...">
+
+      <label style="font-family:'Caveat',cursive;color:var(--amber);font-size:1rem;">🎯 Tone</label><br><br>
+      <select class="topic-input" id="tone-select">
+        <option value="analytical and bold">Analytical & Bold</option>
+        <option value="urgent and alarming">Urgent & Alarming</option>
+        <option value="educational and clear">Educational & Clear</option>
+        <option value="contrarian and provocative">Contrarian & Provocative</option>
+        <option value="inspiring and motivational">Inspiring & Motivational</option>
+      </select>
+
+      <div class="generator-grid">
+        <button class="gen-btn gen-btn-red" onclick="generateContent('hook')">🪝 Generate Hook</button>
+        <button class="gen-btn gen-btn-amber" onclick="generateContent('caption')">📝 Full Caption</button>
+        <button class="gen-btn gen-btn-teal" onclick="generateContent('carousel')">📱 Carousel Script</button>
+        <button class="gen-btn gen-btn-green" onclick="generateContent('hashtags')">🏷 Hashtags</button>
+        <button class="gen-btn gen-btn-purple" onclick="generateContent('reel')">🎬 Reel Script</button>
+        <button class="gen-btn gen-btn-amber" onclick="generateContent('cta')">📣 CTA Options</button>
+      </div>
+
+      <div class="gen-output" id="gen-output">Your generated content will appear here. Enter a topic above and click any button ✍️</div>
+      <button class="copy-btn" id="copy-gen-btn" onclick="copyGenOutput()">📋 Copy Output</button>
+    </div>
+
+    <!-- ======================== TAB 6: IMAGE PROMPTS ======================== -->
+    <div class="section" id="tab-images">
+      <div class="section-title"><span class="dot" style="background:var(--purple)"></span>AI Image Prompts</div>
+      <div class="underline-scribble" style="background:var(--purple); width:190px;"></div>
+
+      <div class="card card-purple">
+        <div class="card-title">🖼 Ready-to-use prompts for Midjourney / DALL-E / Ideogram</div>
+        <div class="card-body">Use these for carousel cover slides and Reel thumbnails. Style is consistent with a dark, analytical, high-authority brand.</div>
+      </div>
+
+      <div id="image-prompts-container"></div>
+
+      <div class="card card-teal" style="margin-top:16px;">
+        <div class="card-title">⚡ Generate Custom Image Prompt</div>
+        <input class="topic-input" id="img-topic-input" type="text" placeholder="e.g. India's role in global supply chains, AI replacing jobs...">
+        <button class="gen-btn gen-btn-purple" onclick="generateImagePrompt()" style="width:100%">🎨 Generate Image Prompt</button>
+        <div class="gen-output" id="img-output" style="margin-top:12px; min-height:60px;">Image prompt will appear here...</div>
+        <button class="copy-btn" onclick="copyImgOutput()">📋 Copy Prompt</button>
+      </div>
+    </div>
+
+    <!-- ======================== TAB 7: TRACKER ======================== -->
+    <div class="section" id="tab-tracker">
+      <div class="section-title"><span class="dot" style="background:var(--green)"></span>Daily Content Tracker</div>
+      <div class="underline-scribble" style="background:var(--green); width:200px;"></div>
+
+      <div class="card card-green">
+        <div class="card-title">☑️ Daily Pre-Post Checklist</div>
+        <div id="daily-checklist"></div>
+      </div>
+
+      <div class="card card-amber" style="margin-top:14px;">
+        <div class="card-title">📈 Weekly Growth KPIs to Track</div>
+        <table class="analysis-table">
+          <tr><th>Metric</th><th>Target (Week 1)</th><th>Target (Month 1)</th></tr>
+          <tr><td>Followers</td><td>+100</td><td>+1,000</td></tr>
+          <tr><td>Saves per post</td><td>50+</td><td>200+</td></tr>
+          <tr><td>DM Shares per post</td><td>20+</td><td>100+</td></tr>
+          <tr><td>Avg. Engagement Rate</td><td>3%+</td><td>5%+</td></tr>
+          <tr><td>Profile Visits</td><td>500+</td><td>3,000+</td></tr>
+          <tr><td>Reel Views</td><td>1,000+</td><td>10,000+</td></tr>
+        </table>
+      </div>
+
+      <div class="card card-red" style="margin-top:14px;">
+        <div class="card-title">🔁 Content Repurposing Workflow</div>
+        <div class="card-body">
+          1. Post Carousel on Instagram (primary) →<br>
+          2. Repurpose slides as LinkedIn article (same day) →<br>
+          3. Record 30-sec Reel summarising carousel (next day) →<br>
+          4. Turn carousel into Twitter/X thread (same evening) →<br>
+          5. Save best-performing hooks in a swipe file (weekly review)
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /notebook-wrap -->
+
+<script>
+// ─── RENDER SPIRALS ───
+const spiralContainer = document.getElementById('spirals');
+for(let i=0; i<30; i++){
+  const r = document.createElement('div');
+  r.className = 'spiral-ring';
+  spiralContainer.appendChild(r);
+}
+
+// ─── TABS ───
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─── 7-DAY PLAN DATA ───
+const dayPlan = [
+  {
+    day: 1, type: "Carousel (10 slides)", color: "red",
+    topic: "The Hidden Map: How Trade Wars Actually Work",
+    hook: "Every trade war follows the same 5-step playbook. Most people only see Step 1.",
+    desc: "Break down US-China or India-China trade dynamics with a systems map. Show how tariffs → supply chain shift → opportunity.",
+    time: "8:30 AM (IST) — Tuesday",
+    cta: "Save this map. Comment 'TRADE' for the full framework.",
+    metric: "Saves + DM Shares"
+  },
+  {
+    day: 2, type: "Reel (45–60 sec)", color: "amber",
+    topic: "I Automated My Research in 2 Hours Using AI — Here's Exactly How",
+    hook: "2 hours. That's how long it took me to build a system that now reads 50 news sources daily and sends me a summary. Here's the exact workflow.",
+    desc: "Show automation stack: Perplexity + Make/n8n + Notion + WhatsApp. Screen-share style or talking head with text overlays.",
+    time: "7:30 AM (IST) — Wednesday",
+    cta: "Comment 'STACK' and I'll DM you the full workflow.",
+    metric: "Comments + DM triggers + Shares"
+  },
+  {
+    day: 3, type: "Carousel (10 slides)", color: "teal",
+    topic: "BRICS Is Not What The Media Is Telling You",
+    hook: "The media is focused on the wrong BRICS story. Here's what's actually happening — and why it matters for every Indian.",
+    desc: "Decode BRICS expansion, de-dollarisation attempts, India's actual position. Use data + maps. Neutral, analytical.",
+    time: "9:00 AM (IST) — Thursday",
+    cta: "Send this to someone who thinks geopolitics doesn't affect them.",
+    metric: "DM Shares + Saves"
+  },
+  {
+    day: 4, type: "Carousel (8 slides)", color: "green",
+    topic: "The AI Skills That Will Make You Unemployable vs. Unstoppable",
+    hook: "Two lists. One shrinks your salary. One doubles it. Most people are on the wrong one.",
+    desc: "Contrast obsolete skills vs future-proof AI-augmented skills. Framework-style, clean typography. Very shareable.",
+    time: "8:00 AM (IST) — Friday",
+    cta: "Tag someone who needs to see the second list. Save this for your next career decision.",
+    metric: "Shares + Tags + Saves"
+  },
+  {
+    day: 5, type: "Reel (30–45 sec)", color: "purple",
+    topic: "This One Mental Model Explains 90% of Business Decisions",
+    hook: "Warren Buffett uses it. Ray Dalio built an entire fund on it. Most people have never heard of it.",
+    desc: "Second-order thinking. Quick, punchy Reel. Text overlay on minimalist background. Give 2 real examples.",
+    time: "7:30 AM (IST) — Saturday",
+    cta: "Follow for one mental model every week. Save this.",
+    metric: "Saves + Profile Visits + Follows"
+  },
+  {
+    day: 6, type: "Carousel (12 slides)", color: "red",
+    topic: "India 2030: The Supply Chain Story No One Is Connecting",
+    hook: "China + 1 strategy is quietly reshaping where the world manufactures. India just became the most important chess piece.",
+    desc: "Connect geopolitics → manufacturing shift → sectors to watch → business opportunities. Deep-dive. This is your 'pillar' post.",
+    time: "9:00 AM (IST) — Sunday",
+    cta: "Save this. This post will age very well. Comment your take below.",
+    metric: "Saves + Comments + Shares"
+  },
+  {
+    day: 7, type: "Carousel (8 slides)", color: "amber",
+    topic: "The 7-Step Framework to Understand Any News Story in Under 5 Minutes",
+    hook: "Most people read news. Smart people decode it. Here's the exact 7-step system I use every day.",
+    desc: "Practical framework carousel. Step by step. Checklist feel. Extremely saveable. References systems thinking.",
+    time: "8:30 AM (IST) — Monday",
+    cta: "Save this as your reading framework. Send to your smartest friend.",
+    metric: "Saves + DM Shares"
+  }
+];
+
+const container = document.getElementById('day-plan-container');
+dayPlan.forEach(d => {
+  const el = document.createElement('div');
+  el.className = 'day-card';
+  el.innerHTML = `
+    <div class="day-header" onclick="toggleDay(this)">
+      <div class="day-num">D${d.day}</div>
+      <div class="day-info">
+        <div class="day-topic">${d.topic}</div>
+        <div class="day-meta">${d.type} · ${d.time} · Target: <span style="color:var(--green)">${d.metric}</span></div>
+      </div>
+      <div class="day-arrow">▶</div>
+    </div>
+    <div class="day-body">
+      <div class="post-field">
+        <div class="post-label"><span class="emoji">🪝</span> Hook</div>
+        <div class="post-text">${d.hook}</div>
+      </div>
+      <div class="post-field">
+        <div class="post-label"><span class="emoji">📋</span> Content Brief</div>
+        <div class="post-text">${d.desc}</div>
+      </div>
+      <div class="post-field">
+        <div class="post-label"><span class="emoji">📣</span> CTA</div>
+        <div class="post-text">${d.cta}</div>
+      </div>
+    </div>
+  `;
+  container.appendChild(el);
+});
+
+function toggleDay(header) {
+  const card = header.parentElement;
+  card.classList.toggle('open');
+}
+
+// ─── 9 FULL POSTS ───
+const fullPosts = [
+  {
+    label: "Day 1 Post", badge: "Carousel",
+    topic: "How Trade Wars Actually Work",
+    hook: "Every trade war follows the same 5-step playbook. Most people only see Step 1.\n\nBy the time you see Step 3, your job, savings, or business is already affected.\n\nHere's the full map 👇",
+    body: `Slide 1: [HOOK — Bold text on dark background]
+"Every trade war follows the same 5-step playbook."
+
+Slide 2: Step 1 — Tension Signal
+A country imposes tariffs. Headlines say "trade dispute."
+Nobody panics. Wrong move.
+
+Slide 3: Step 2 — Supply Chain Pressure
+Manufacturers start looking for alternatives.
+This takes 6–18 months. Invisible to most.
+
+Slide 4: Step 3 — Currency & Capital Shifts
+Money flows away from unstable trade corridors.
+Your mutual fund just changed.
+
+Slide 5: Step 4 — Geopolitical Realignment
+Countries pick sides. New alliances form.
+The world map is being redrawn.
+
+Slide 6: Step 5 — Opportunity Window
+A small country (or sector) becomes the world's new darling.
+This is where smart money goes.
+
+Slide 7: The India Angle
+Right now, we are between Step 4 and Step 5.
+That's the most important sentence in this carousel.
+
+Slide 8: What This Means For You
+If you're in tech, logistics, manufacturing, or finance —
+the next 24 months will define the next decade.
+
+Slide 9: The Framework
+Draw the 5-step map. Overlay any current news.
+That's your signal. Most people call it luck.
+
+Slide 10: [CTA Slide]
+Save this map. Comment 'TRADE' for the full PDF framework.
+Follow @adithya.a.a.h for daily decodes.`,
+    cta: "Save this map 🗺️ Comment 'TRADE' and I'll DM you the complete framework PDF. Follow for daily geopolitics + business decodes.",
+    hashtags: ["#GeopoliticsDecoded", "#TradeWar", "#IndiaEconomy", "#BusinessStrategy", "#SystemsThinking"]
+  },
+  {
+    label: "Day 2 Post", badge: "Reel",
+    topic: "AI Research Automation Stack",
+    hook: "2 hours. That's how long it took me to build a system that now reads 50+ news sources, filters what matters, and delivers a personalised brief to my phone every morning.\n\nHere's the exact AI stack — no fluff:",
+    body: `[REEL SCRIPT — 45 seconds]
+
+[0–3s] TEXT ON SCREEN: "I spent 3 hours every morning reading news. Then I automated all of it."
+
+[3–8s] "The problem: Information overload. The solution: A workflow that does it for me."
+
+[8–20s] Here's the stack:
+— Perplexity AI: Pulls and summarises latest articles by topic
+— Make (formerly Integromat): Automates the flow
+— Notion: Organises the brief
+— Telegram/WhatsApp: Delivers to my phone at 7 AM
+
+[20–35s] The setup took 2 hours. The ROI? 3 hours saved every day. That's 90 hours per month back in my life.
+
+[35–45s] "If you want the exact template I use — comment STACK below and I'll send it directly to your DMs."
+
+[Caption below video]`,
+    cta: "Comment 'STACK' 👇 and I'll DM you the exact Make.com template I use. Takes 10 minutes to set up. Follow for more AI automation playbooks.",
+    hashtags: ["#AIAutomation", "#ProductivityHack", "#MakeAutomation", "#AITools2025", "#WorkSmarter"]
+  },
+  {
+    label: "Day 3 Post", badge: "Carousel",
+    topic: "The Real BRICS Story",
+    hook: "The media gave you the headline.\n\nI'm going to give you what's actually happening — and why every Indian should pay attention.\n\nBRICS isn't a news story. It's a restructuring of the entire world order. 👇",
+    body: `Slide 1: [HOOK]
+"BRICS isn't what the media is telling you."
+
+Slide 2: What You've Been Told
+"BRICS wants to replace the dollar."
+That's the headline. And it's misleading you.
+
+Slide 3: What's Actually Happening
+BRICS is building alternative payment rails.
+Not to kill the dollar — to reduce dependence on it.
+Small but enormously significant difference.
+
+Slide 4: New BRICS Members
+Saudi Arabia, UAE, Ethiopia, Iran joined in 2024.
+That's now: 40%+ of global oil + 40%+ of world population.
+One bloc. One conversation.
+
+Slide 5: India's Unique Position
+India is in BRICS. India is also aligned with the West.
+We are simultaneously inside both worlds.
+That's not a contradiction. That's leverage.
+
+Slide 6: The Trade Angle
+BRICS trade in local currencies is growing quietly.
+India–Russia trade in rupees is already happening.
+The system is being tested. Not replaced. Yet.
+
+Slide 7: What Changes For Business
+If alternative payment systems mature:
+— Cross-border trade costs drop
+— USD dependency reduces
+— Indian exporters gain new corridors
+
+Slide 8: The Risk You're Ignoring
+If India misreads this and over-commits to one side,
+we lose the strategic ambiguity that gives us power.
+This is the most important sentence in this carousel.
+
+Slide 9: What To Watch
+Track: rupee internationalisation, BRICS payment platform updates,
+and India's voting pattern in UN resolutions.
+These are the real signals.
+
+Slide 10: [CTA]
+Send this to someone who thinks geopolitics doesn't affect them.
+Every business decision you make in the next 5 years will be shaped by this.`,
+    cta: "Send this 📤 to someone who needs to understand what's actually happening in the world. Drop your biggest question below — I read every comment.",
+    hashtags: ["#BRICS", "#GeopoliticsIndia", "#GlobalEconomy", "#IndiaRising", "#WorldOrder"]
+  },
+  {
+    label: "Day 4 Post", badge: "Carousel",
+    topic: "AI Skills: Unemployable vs Unstoppable",
+    hook: "Two lists.\n\nOne is quietly shrinking salaries.\nThe other is creating the most in-demand professionals of the decade.\n\nMost people reading this are on the wrong list. 👇",
+    body: `Slide 1: [HOOK]
+"Two types of professionals in 2026.
+Which list are you on?"
+
+Slide 2: List 1 — Skills Being Automated
+— Manual data entry & reporting
+— Basic copywriting & editing
+— Routine customer support
+— Standard financial modelling
+— Templated code generation
+
+Slide 3: The Problem
+If your entire job is on List 1,
+AI isn't going to take your job.
+Someone using AI will.
+
+Slide 4: List 2 — Skills That Become More Valuable
+— Prompt engineering & AI tool orchestration
+— Critical thinking + cross-domain synthesis
+— Strategic narrative & framing
+— Systems design & workflow architecture
+— Geopolitical & market pattern reading
+
+Slide 5: The Unlock
+List 2 skills turn AI into a force multiplier.
+1 person with these skills does the work of 5.
+That person earns like 10.
+
+Slide 6: The India Opportunity
+India has 500M+ working population.
+The ones who develop List 2 skills now
+will dominate the next economic wave.
+This is a 10-year window.
+
+Slide 7: Practical Step 1
+Pick ONE AI tool this week and go 80% deep.
+Not 5 tools at 20%. Depth beats breadth.
+Suggested start: Perplexity, Claude, or Make.com
+
+Slide 8: Practical Step 2
+Combine your domain expertise + AI tools.
+A finance professional + AI analysis = unbeatable.
+Your domain knowledge is the moat. AI is the lever.
+
+Slide 9: The Summary
+The future doesn't belong to AI. It belongs to humans who use AI well.
+Stop consuming content about AI.
+Start building with it.
+
+Slide 10: [CTA]
+Save this. Tag someone building their List 2 skills.`,
+    cta: "Save this 📌 — you'll want this when making your next career move. Tag someone you think is building the wrong skill set. Let's talk about it below.",
+    hashtags: ["#AISkills", "#FutureOfWork", "#CareerGrowth", "#ArtificialIntelligence", "#IndiaJobs"]
+  },
+  {
+    label: "Day 5 Post", badge: "Reel",
+    topic: "Second-Order Thinking Mental Model",
+    hook: "Warren Buffett uses it.\nRay Dalio built an entire $150B fund on it.\nMost people have never heard of it.\n\nIt's called Second-Order Thinking.\nHere's how it works in 60 seconds:",
+    body: `[REEL SCRIPT — 45 seconds]
+
+[0–3s] TEXT: "The mental model that separates average thinkers from exceptional ones."
+
+[3–10s] "Most people ask: What happens if I do X? 
+Second-order thinkers ask: What happens NEXT? And after that?"
+
+[10–22s] Real Example 1:
+First-order: "Raise salaries → employees happier"
+Second-order: "Higher costs → prices rise → customers leave → layoffs"
+
+[22–35s] Real Example 2:
+First-order: "India signs trade deal with X → exports increase"
+Second-order: "Domestic producers face competition → lobby for restrictions → deal collapses"
+
+[35–45s] "Every major decision — business, investment, career — 
+has a second and third order consequence.
+Most people never look that far.
+That's your advantage if you do."
+
+[END CARD: "Follow for one mental model per week"]`,
+    cta: "Follow 📲 for one mental model every week — the ones that actually change how you see the world. Save this for the next time someone asks you to make a quick decision.",
+    hashtags: ["#MentalModels", "#SystemsThinking", "#SecondOrderThinking", "#BusinessMindset", "#InvestingMindset"]
+  },
+  {
+    label: "Day 6 Post", badge: "Carousel",
+    topic: "India 2030: The Supply Chain Story",
+    hook: "There's a massive restructuring happening in global manufacturing.\n\nMost Indians don't know India is at the centre of it.\n\nThis is the most important business story of the decade. Let me explain: 👇",
+    body: `Slide 1: [HOOK]
+"By 2030, India could be manufacturing
+what the world currently buys from China.
+Here's the map."
+
+Slide 2: The China + 1 Strategy
+Multinationals are reducing China concentration.
+They need ONE reliable alternative.
+India, Vietnam, Mexico are competing.
+
+Slide 3: Why India Is Winning
+— English-speaking engineering talent
+— Democratic, rule-of-law country (investor confidence)
+— 1.4B domestic consumption market
+— Largest youth population on Earth
+— Strategic geography (Indian Ocean = world trade routes)
+
+Slide 4: The Numbers
+Apple: 14% of iPhones already made in India (2024 → targeting 25%)
+Samsung: Largest mobile factory on Earth in Noida
+Foxconn: Multi-billion investment in Karnataka & Tamil Nadu
+
+Slide 5: The Sectors To Watch
+→ Electronics manufacturing
+→ Pharmaceuticals (already 20% of global generics)
+→ Semiconductors (CHIPS Act equivalent underway)
+→ Defence exports (10x growth targeted)
+→ Green energy components
+
+Slide 6: The Policy Machine
+PLI Schemes: ₹1.97 lakh crore incentives across 14 sectors
+PM Gati Shakti: Infrastructure logistics backbone
+GIFT City: Financial hub to rival Singapore by 2030
+
+Slide 7: What This Creates
+20M+ manufacturing jobs by 2030 (projected)
+₹1 Trillion+ in exports
+New industrial corridors reshaping tier-2 cities
+
+Slide 8: The Risk
+Infrastructure bottlenecks, land acquisition delays,
+skill gaps in advanced manufacturing.
+We need to move faster. The window is NOW.
+
+Slide 9: The Business Opportunity
+If you're building in logistics, tech services,
+training, components, or finance — this is your era.
+The India story isn't coming. It's already here.
+
+Slide 10: [CTA]
+This post will age well. Save it.
+Share with someone building something in India.
+Your comment below: What sector are you most bullish on?`,
+    cta: "Save this 🔖 — read it again in 2027. Drop below: which India sector are you most bullish on? I'll reply to every serious answer.",
+    hashtags: ["#IndiaMakes", "#MakeInIndia", "#IndiaEconomy", "#SupplyChain", "#India2030"]
+  },
+  {
+    label: "Day 7 Post", badge: "Carousel",
+    topic: "7-Step Framework to Decode Any News Story",
+    hook: "Most people read the news.\n\nSmart people decode it.\n\nHere's the exact 7-step system I use every day to separate signal from noise — and find the opportunity hidden in every story. 👇",
+    body: `Slide 1: [HOOK]
+"Read news for 10 years and stay confused.
+Use this framework for 10 days and see the world differently."
+
+Slide 2: Step 1 — Who Benefits?
+Every story has a winner. Find them first.
+Ask: Who is this narrative serving?
+
+Slide 3: Step 2 — What's NOT Being Said?
+Absence of information is information.
+What context is missing? What numbers aren't shown?
+
+Slide 4: Step 3 — What's the Second-Order Effect?
+After the obvious consequence — what happens next?
+(Tariffs → supply chain shift → new trade routes)
+
+Slide 5: Step 4 — Which Systems Are Involved?
+Economic? Political? Military? Social?
+Most big stories involve 3+ systems simultaneously.
+
+Slide 6: Step 5 — What's the Timeline?
+Is this a 6-month story or a 6-year story?
+Short-term noise vs long-term signal.
+Learn to tell the difference.
+
+Slide 7: Step 6 — What's the India Angle?
+Every global story has an India implication.
+Trade route? Currency? Exports? Jobs?
+Find your local lens.
+
+Slide 8: Step 7 — What Action Does This Suggest?
+Most analysis stops before here.
+Step 7: So what do YOU do differently now?
+This is where knowledge becomes power.
+
+Slide 9: Apply It Now
+Take tomorrow's top headline.
+Run it through all 7 steps.
+You'll never read news the same way again.
+
+Slide 10: [CTA]
+Save this framework 📌
+Send it to your smartest friend.
+Use it every morning for 7 days.`,
+    cta: "Save this 📌 as your daily reading framework. Send to someone you think is smart — let's see if they're using this already. Follow for more frameworks that change how you think.",
+    hashtags: ["#CriticalThinking", "#NewsDecoded", "#MediaLiteracy", "#SystemsThinking", "#SmartThinking"]
+  },
+  {
+    label: "Backup Post 1", badge: "Carousel",
+    topic: "The Automation Economy: Why Your Biggest Business Competitor Is Now a Bot",
+    hook: "A startup with 3 people just beat a 200-person company in the same market.\n\nThe weapon? Automation.\nThe truth? It's now accessible to anyone.\n\nHere's the full breakdown of the Automation Economy 👇",
+    body: `Slide 1: [HOOK] "3 people. 1 automation stack. $2M ARR. No employees."
+Slide 2: This isn't a startup story. It's the new normal.
+Slide 3: The Automation Stack (2026 version): n8n + Claude API + Notion + Zapier = a lean ops machine
+Slide 4: What Gets Automated: Outreach, content, research, reporting, customer comms, invoicing
+Slide 5: What Doesn't Get Automated: Judgment, relationships, creative strategy, trust
+Slide 6: The Small Business Opportunity: 80% of tasks automated → founders focus on the 20% that actually grows the business
+Slide 7: The Competitive Moat: Your competitor can copy your product. They can't easily copy your automated workflow.
+Slide 8: Getting Started: Map your 10 most repeated weekly tasks. Automate the top 3 first.
+Slide 9: The Future: Every business that doesn't automate by 2027 will compete at a permanent cost disadvantage.
+Slide 10: [CTA] Comment 'AUTO' for the beginner automation blueprint I use.`,
+    cta: "Comment 'AUTO' 🤖 and I'll DM you the starter automation blueprint. Save this as your business checklist for 2026.",
+    hashtags: ["#BusinessAutomation", "#StartupStrategy", "#AIBusiness", "#Automation2026", "#LeanStartup"]
+  },
+  {
+    label: "Backup Post 2", badge: "Reel",
+    topic: "The Debt Trap Playbook — How Countries Get Caught",
+    hook: "A country borrows money to build infrastructure.\nThe debt becomes unpayable.\nThe lender takes control.\n\nThis has happened 14 times in the last decade.\nHere's the exact playbook — and which countries to watch next:",
+    body: `[REEL SCRIPT — 60 seconds]
+
+[0–4s] TEXT: "The modern debt trap — how it actually works"
+
+[4–15s] "Step 1: A developing country needs infrastructure.
+A powerful nation offers cheap loans. No questions asked."
+
+[15–25s] "Step 2: The project is overbuilt, overpriced,
+or underperforms. Debt becomes unpayable."
+
+[25–38s] "Step 3: The lender offers a renegotiation.
+The price? Ports. Airports. Land leases. Strategic assets.
+Hambantota Port in Sri Lanka — 99 year lease. Look it up."
+
+[38–50s] "Step 4: The country loses sovereignty over strategic infrastructure.
+The lender gains permanent geopolitical leverage.
+This isn't charity. It's chess."
+
+[50–60s] "The countries to watch right now:
+Pakistan. Several African nations. Parts of Southeast Asia.
+Follow for daily geopolitics decoded."`,
+    cta: "Follow 📲 for daily geopolitics decoded — no jargon, no agenda, just clarity. Share this with someone studying international relations or business.",
+    hashtags: ["#DebtTrap", "#Geopolitics", "#InternationalRelations", "#GlobalPolitics", "#EconomicWarfare"]
+  }
+];
+
+const postsContainer = document.getElementById('full-posts-container');
+fullPosts.forEach((p, i) => {
+  const card = document.createElement('div');
+  card.className = 'day-card';
+  card.innerHTML = `
+    <div class="day-header" onclick="toggleDay(this)">
+      <div class="day-num" style="font-size:1.2rem;min-width:70px;color:${i>=7?'var(--red)':'var(--amber)'}">
+        ${p.label}
+      </div>
+      <div class="day-info">
+        <div class="day-topic">${p.topic}</div>
+        <div class="day-meta"><span class="tag tag-teal">${p.badge}</span></div>
+      </div>
+      <div class="day-arrow">▶</div>
+    </div>
+    <div class="day-body">
+      <div class="post-field">
+        <div class="post-label"><span class="emoji">🪝</span> HOOK (Stop-the-scroll)</div>
+        <div class="post-text">${p.hook}</div>
+      </div>
+      <div class="post-field">
+        <div class="post-label"><span class="emoji">📋</span> BODY / Slide Script</div>
+        <div class="post-text">${p.body}</div>
+      </div>
+      <div class="post-field">
+        <div class="post-label"><span class="emoji">📣</span> CALL TO ACTION</div>
+        <div class="post-text">${p.cta}</div>
+      </div>
+      <div class="post-field">
+        <div class="post-label"><span class="emoji">🏷</span> HASHTAGS</div>
+        <div class="hashtag-cloud">${p.hashtags.map(h=>`<span class="hashtag">${h}</span>`).join('')}</div>
+      </div>
+      <button class="copy-btn" onclick="copyPost(${i})">📋 Copy Full Post</button>
+    </div>
+  `;
+  postsContainer.appendChild(card);
+});
+
+function copyPost(i) {
+  const p = fullPosts[i];
+  const text = `HOOK:\n${p.hook}\n\nBODY:\n${p.body}\n\nCTA:\n${p.cta}\n\nHASHTAGS:\n${p.hashtags.join(' ')}`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btns = document.querySelectorAll('.copy-btn');
+    btns[i].textContent = '✅ Copied!';
+    btns[i].classList.add('copied');
+    setTimeout(()=>{ btns[i].textContent = '📋 Copy Full Post'; btns[i].classList.remove('copied'); }, 2000);
+  });
+}
+
+// ─── IMAGE PROMPTS ───
+const imagePrompts = [
+  {
+    title: "Day 1: Trade War Map",
+    prompt: "Dark infographic poster, deep charcoal background, glowing amber-orange trade route lines connecting world map nodes, minimalist world map outline in dark slate, data visualization aesthetic, typography: bold white uppercase 'TRADE WAR PLAYBOOK', subtle grid overlay, high-contrast analytical style, no people, cinematic lighting, 1080x1350px format"
+  },
+  {
+    title: "Day 2: AI Automation Stack",
+    prompt: "Isometric dark-theme illustration, floating UI cards showing app icons (Notion, Make, Perplexity), connected by glowing teal data flow lines, dark navy-black background, clean tech aesthetic, slight perspective depth, no human figure, neon accent lines, minimalist iconography, professional and sharp, 1080x1350px"
+  },
+  {
+    title: "Day 3: BRICS Geopolitics",
+    prompt: "Political world map with highlighted BRICS nation outlines in glowing amber, dark background, subtle latitude/longitude grid lines, soft vignette edges, country borders in dim grey, BRICS nations illuminated, minimal text areas at top and bottom, cinematic documentary style, bold and authoritative, 1080x1350px"
+  },
+  {
+    title: "Day 4: Skills Comparison",
+    prompt: "Two-column split design, left side cool blue with declining graph and obsolete skill icons, right side warm amber with upward chart and future skill icons, dark background, clean modern layout, bold dividing line, minimal iconography, data-driven aesthetic, subtle scan lines texture, 1080x1350px"
+  },
+  {
+    title: "Day 5: Mental Model Reel Cover",
+    prompt: "Minimal dark poster, single glowing light bulb made of circuit board patterns, below it two branching decision trees showing first and second order paths, monochrome amber tones on black, clean typography space at top for hook text, philosophical and intellectual aesthetic, 1080x1920px vertical"
+  },
+  {
+    title: "Day 6: India Supply Chain",
+    prompt: "Aerial birds-eye isometric view of Indian subcontinent as a factory floor surrounded by ocean trade routes, glowing shipping lanes connecting to world ports, small isometric factories on Indian coastline, deep space-like dark background, amber and green accent colors, epic scale, infographic meets editorial art style, 1080x1350px"
+  },
+  {
+    title: "Day 7: Framework Carousel Cover",
+    prompt: "7 glowing numbered steps arranged in a hexagonal framework diagram, dark charcoal background, each step node glowing teal, connecting lines in amber, central hub design, data visualization aesthetic, technical blueprint feel, space for text labels at each node, authoritative and clean, 1080x1350px"
+  }
+];
+
+const imgContainer = document.getElementById('image-prompts-container');
+imagePrompts.forEach(ip => {
+  const el = document.createElement('div');
+  el.className = 'image-prompt-card';
+  el.innerHTML = `
+    <div class="image-prompt-title">🎨 ${ip.title}</div>
+    <div class="image-prompt-text" id="prompt-${ip.title.replace(/\W/g,'')}">${ip.prompt}</div>
+    <button class="copy-btn" style="margin-top:8px;" onclick="copyText('prompt-${ip.title.replace(/\W/g,'')}', this)">📋 Copy Prompt</button>
+  `;
+  imgContainer.appendChild(el);
+});
+
+function copyText(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ─── DAILY CHECKLIST ───
+const checklistItems = [
+  "✍️ Post is written and formatted (carousel or reel script)",
+  "🪝 Hook tested — does it stop YOUR scroll?",
+  "📐 Carousel: 8–10 slides minimum",
+  "🎵 Music added to carousel (for Reels feed boost)",
+  "📝 Caption has 3+ keyword phrases naturally embedded",
+  "🏷 3–5 niche hashtags added (not generic)",
+  "📣 CTA asks for Comment, DM, or Share (not just follow)",
+  "⏰ Scheduled at optimal time (8–9 AM or 7–9 PM IST)",
+  "📊 Tracking: Note expected metric (save/share/comment)",
+  "🔁 Repurpose plan noted (LinkedIn / Twitter thread / Reel)"
+];
+
+const cl = document.getElementById('daily-checklist');
+checklistItems.forEach((item, i) => {
+  const row = document.createElement('div');
+  row.className = 'tracker-row';
+  row.innerHTML = `
+    <div class="tracker-check" id="check-${i}" onclick="toggleCheck(${i})"></div>
+    <div class="tracker-label">${item}</div>
+  `;
+  cl.appendChild(row);
+});
+
+function toggleCheck(i) {
+  const el = document.getElementById('check-'+i);
+  const isDone = el.classList.toggle('done');
+  el.textContent = isDone ? '✓' : '';
+}
+
+// ─── AI GENERATOR ───
+async function generateContent(type) {
+  const topic = document.getElementById('topic-input').value.trim() || 'geopolitics and AI automation';
+  const tone = document.getElementById('tone-select').value;
+  const output = document.getElementById('gen-output');
+
+  const prompts = {
+    hook: `You are an expert Instagram content creator in the niche of geopolitics, business, AI automation, trade analysis, and systems thinking. 
+Write 3 different viral Instagram hook variations for the topic: "${topic}".
+Tone: ${tone}.
+Each hook should stop the scroll, create curiosity or urgency, be under 3 lines.
+Format: Hook 1, Hook 2, Hook 3.`,
+    caption: `You are an expert Instagram content creator specializing in geopolitics, business, AI, trade, and systems thinking.
+Write a complete Instagram caption for the topic: "${topic}".
+Tone: ${tone}.
+Include: a scroll-stopping opening line, 3–4 value sentences, a specific call to action.
+End with 3–5 relevant hashtags.`,
+    carousel: `You are an expert Instagram carousel creator.
+Write a 10-slide carousel script for the topic: "${topic}".
+Tone: ${tone}.
+Format: Slide 1 (hook), Slides 2–9 (content), Slide 10 (CTA).
+Each slide: 1–2 short punchy sentences. Make it educational, shareable, save-worthy.`,
+    hashtags: `You are an Instagram growth expert. Generate the best 10 hashtags for a post about: "${topic}" in the niche of geopolitics, business, AI, trade analysis.
+Include a mix of: 3 niche (5K–50K), 4 medium (50K–500K), 3 broad (500K+) hashtags.
+Format as a clean list with follower counts.`,
+    reel: `You are a viral short-form video scriptwriter.
+Write a 45-second Instagram Reel script about: "${topic}".
+Tone: ${tone}.
+Format: [0-Xs] timestamp, spoken text, on-screen text cues.
+Open with a 3-second pattern interrupt. End with a strong CTA.`,
+    cta: `You are an Instagram engagement expert.
+Write 5 different high-converting CTAs for a post about: "${topic}".
+Each CTA should drive: save, DM, comment, share, or follow.
+Make them specific, not generic. Tone: ${tone}.`
+  };
+
+  output.innerHTML = '<span class="spinner"></span><span style="font-family:Caveat;color:var(--amber)">Generating...</span>';
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompts[type] }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content?.map(c => c.text || '').join('') || 'No response received.';
+    output.textContent = text;
+  } catch(err) {
+    output.innerHTML = `<span class="error-text">⚠️ Error: ${err.message}. Check your API connection.</span>`;
+  }
+}
+
+async function generateImagePrompt() {
+  const topic = document.getElementById('img-topic-input').value.trim() || 'geopolitics and trade';
+  const output = document.getElementById('img-output');
+  output.innerHTML = '<span class="spinner"></span><span style="font-family:Caveat;color:var(--amber)">Generating...</span>';
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 400,
+        messages: [{
+          role: "user",
+          content: `Write a detailed AI image generation prompt (for Midjourney or DALL-E) for an Instagram carousel cover slide about: "${topic}".
+Style: dark theme, analytical, authoritative, cinematic, infographic aesthetic, no people, bold typography space.
+Format: single detailed paragraph prompt, under 120 words.`
+        }]
+      })
+    });
+    const data = await response.json();
+    output.textContent = data.content?.map(c => c.text||'').join('') || 'No output.';
+  } catch(err) {
+    output.innerHTML = `<span class="error-text">⚠️ ${err.message}</span>`;
+  }
+}
+
+function copyGenOutput() {
+  const text = document.getElementById('gen-output').textContent;
+  const btn = document.getElementById('copy-gen-btn');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent = '📋 Copy Output'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyImgOutput() {
+  const text = document.getElementById('img-output').textContent;
+  navigator.clipboard.writeText(text);
+}
+</script>
+</body>
+</html>
